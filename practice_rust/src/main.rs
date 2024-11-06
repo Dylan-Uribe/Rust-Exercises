@@ -14,6 +14,12 @@ fn calculate (number_1: i32, number_2: i32){
     println!("operations: {:?}", operations);
 }
 
+fn get_length(s: String) -> (String, usize) {
+    let length = s.len();
+
+    (s, length)
+}
+
 fn main() {
 
     //Define a function to know if a number is even.
@@ -58,6 +64,15 @@ fn main() {
     println!("Basic: {}", basic_property_2);
     basic_property_2 = String::from("Change the String variable because it is mutable");
     println!("Basic: {}", basic_property_2);
+
+    //Word Length
+
+    println!("\nFIFTH EXERCISE");
+    let s1 = String::from("hola");
+
+    let (s2, len) = get_length(s1);
+
+    println!("La size of '{s2}' is {len}.");
 }
 
 
