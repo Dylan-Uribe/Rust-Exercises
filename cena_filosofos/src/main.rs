@@ -29,7 +29,13 @@ fn main() {
         Philosopher::new("Michel Foucault"),
     ];
 
-    for p in philosopher {
-        p.eat();
+    let handles: Vec<_> = philosopher.into_iter().map(|f| {
+        thread::spawn(move || {
+            f.eat();
+        })
+    }).collect();
+
+    for h in handles {
+        h.join().unwrap();
     }
 }
