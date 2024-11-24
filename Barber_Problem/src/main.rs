@@ -2,14 +2,21 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, Semaphore};
 use tokio::time::Duration;
 
+/// Represents a barber shop with a limited number of chairs and customers.
 struct BarberShop {
-    semaphore: Arc<Semaphore>,
-    max_chairs: u32,
-    customers_waiting: Arc<Mutex<u32>>,
-    remaining_customers: Arc<Mutex<u32>>,
+    semaphore: Arc<Semaphore>,                // Semaphore to manage available chairs
+    max_chairs: u32,                          // Maximum number of chairs
+    customers_waiting: Arc<Mutex<u32>>,       // Number of customers waiting
+    remaining_customers: Arc<Mutex<u32>>,     // Total remaining customers
 }
 
 impl BarberShop {
+    /// Creates a new `BarberShop` with the specified number of chairs and total customers.
+    ///
+    /// # Arguments
+    ///
+    /// * `max_chairs` - The maximum number of chairs available in the barber shop.
+    /// * `total_customers` - The total number of customers expected.
     fn new(max_chairs: u32, total_customers: u32) -> Self {
         BarberShop {
             semaphore: Arc::new(Semaphore::new(max_chairs as usize)),
@@ -19,6 +26,11 @@ impl BarberShop {
         }
     }
 
+    /// Handles the arrival of a customer.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - The ID of the arriving customer.
     async fn arrive_customer(&self, id: u32) {
         let mut customers_waiting = self.customers_waiting.lock().await;
 
@@ -38,9 +50,9 @@ impl BarberShop {
         }
     }
 
+    /// Simulates the barber cutting hair.
     async fn cut_hair(&self) {
         loop {
-
             let mut customers_waiting = self.customers_waiting.lock().await;
 
             if *customers_waiting == 0 {
@@ -75,8 +87,8 @@ impl BarberShop {
 
 #[tokio::main]
 async fn main() {
-    let total_customers = 8;
-    let shop = Arc::new(BarberShop::new(3, total_customers));
+    let total_customers = 8; // Simulate with more customers to force accumulation
+    let shop = Arc::new(BarberShop::new(3, total_customers)); // 3 chairs
 
     let barber_shop = Arc::clone(&shop);
     let barber_thread = tokio::spawn(async move {
@@ -88,7 +100,7 @@ async fn main() {
     for i in 1..=total_customers {
         let shop = Arc::clone(&shop);
         let client_thread = tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_secs(i as u64)).await;
+            tokio::time::sleep(Duration::from_secs(i as u64)).await; // Staggered arrivals
             println!("Customer {} has arrived.", i);
             shop.arrive_customer(i).await;
         });
@@ -101,3 +113,8 @@ async fn main() {
 
     barber_thread.await.unwrap();
 }
+
+/* The code above creates a  BarberShop  struct that represents a barber shop with a limited number of chairs and customers. The  arrive_customer  method is used to handle the arrival of a customer, while the  cut_hair  method simulates the barber cutting hair.
+ The  main  function creates a new  BarberShop  instance with 3 chairs and 8 total customers. It then spawns a barber thread to cut hair and multiple client threads to simulate customers arriving at the barber shop.
+ To run the code, execute the following command:
+ cargo run */
